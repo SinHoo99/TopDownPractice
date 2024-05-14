@@ -6,16 +6,18 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    public TalkManager talkManager;
     public GameObject talkPanel;
     public Text talkText;
     public GameObject scanObject;
     public static GameManager instance;
     public bool isAction;
+    public int talkIndex;
 
 
     private void Awake()
     {
-        if(instance == null)
+        if (instance == null)
         {
             instance = this;
         }
@@ -23,16 +25,33 @@ public class GameManager : MonoBehaviour
 
     public void Action(GameObject scanObj)
     {
-        if (isAction)
+        isAction = true;
+        scanObject = scanObj;
+        ObjectData objData = scanObj.GetComponent<ObjectData>();
+        Talk(objData.id, objData.isNpc);
+
+        talkPanel.SetActive(isAction);
+    }
+    private void Talk(int id, bool inNpc)
+    {
+        string talkData = talkManager.GetTalk(id, talkIndex);
+
+        if (talkData == null)
         {
             isAction = false;
+            talkIndex = 0;
+            return;
+        }
+        if (inNpc)
+        {
+            talkText.text = talkData;
         }
         else
         {
-            isAction = true;
-            scanObject = scanObj;
-            talkText.text = "이사람의 이름은" + scanObject.name + "이라고 한다.";
+            talkText.text = talkData;
         }
-        talkPanel.SetActive(isAction);
+
+        isAction = true;
+        talkIndex++;
     }
 }
